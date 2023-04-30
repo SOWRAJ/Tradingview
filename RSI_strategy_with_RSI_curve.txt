@@ -1,0 +1,28 @@
+//@version=5
+strategy("RSI Strategy", overlay=true)
+//Strategy ok for 1 day time frame but not suitable for other time frames
+// Set input parameters
+length = input.int(title="Length", defval=14)
+overSold = input.int(title="Oversold", defval=30)
+overBought = input.int(title="Overbought", defval=70)
+
+// Calculate RSI
+price = close
+rsi = ta.rsi(price, length)
+
+// Plot RSI line and Overbought/Oversold levels
+plot(rsi, title="RSI", color=color.blue)
+hline(overSold, title="Oversold", color=color.green)
+hline(overBought, title="Overbought", color=color.red)
+
+// Execute trades based on RSI levels
+co = ta.crossover(rsi, overSold)
+cu = ta.crossunder(rsi, overBought)
+if (not na(rsi))
+    if (co)
+        strategy.entry("RsiLE", strategy.long, comment="RsiLE")
+    if (cu)
+        strategy.entry("RsiSE", strategy.short, comment="RsiSE")
+
+// Plot equity curve
+//plot(strategy.equity, title="equity", color=color.red, linewidth=2, style=plot.style_area)
