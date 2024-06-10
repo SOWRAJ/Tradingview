@@ -1,0 +1,36 @@
+//@version=5
+indicator(title="Directional Movement Index", shorttitle="DMI", format=format.price, precision=4, timeframe="", timeframe_gaps=true)
+
+// Input parameters
+lensig = input.int(14, title="ADX Smoothing", minval=1, maxval=50)
+len = input.int(14, minval=1, title="DI Length")
+
+// Price movement calculations
+up = ta.change(high)
+down = -ta.change(low)
+
+// Directional Movement (existing logic)
+plusDM = na(up) ? na : (up > down and up > 0 ? up : 0)
+minusDM = na(down) ? na : (down > up and down > 0 ? down : 0)
+
+// True Range (existing logic)
+trur = ta.rma(ta.tr, len)
+
+// Directional Index (existing logic)
+plus = fixnan(100 * ta.rma(plusDM, len) / trur)
+minus = fixnan(100 * ta.rma(minusDM, len) / trur)
+
+// Calculate the DX
+dx = 100 * math.abs(plus - minus) / (plus + minus)  // Ensure denominator is not zero
+
+// Average Directional Index (existing logic)
+sum = plus + minus
+adx = 100 * ta.rma(math.abs(plus - minus) / (sum == 0 ? 1 : sum), lensig)
+
+// Plotting
+plot(adx, color=#F50057, title="ADX")
+plot(plus, color=#2962FF, title="+DI")
+plot(minus, color=#FF6D00, title="-DI")
+plot(dx, color=color.orange, title="DX")  // Add plot for DX
+// Reference lines (optional)
+hline(20, "20", color=color.gray, linestyle=hline.style_solid)
